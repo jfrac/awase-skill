@@ -1,12 +1,12 @@
 ---
-description: Adaptive training skill for developers. Generates 1-2 short technical exercises based on session code and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
+description: Adaptive training skill for developers. Generates 1-2 short technical exercises based on session code and underlying concepts, and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
 ---
 
 # awase — Adaptive developer training skill
 
 This skill activates when the user writes `/awase` (with or without arguments).
-It generates short technical exercises based on code produced in the current session
-and maintains a personal profile using spaced repetition (SM-2 algorithm).
+It generates short technical exercises — both code-based and purely conceptual — derived
+from the current session, and maintains a personal profile using spaced repetition (SM-2 algorithm).
 
 ---
 
@@ -19,6 +19,7 @@ and maintains a personal profile using spaced repetition (SM-2 algorithm).
 | `/awase --tipo completar` | Force snippet completion exercise |
 | `/awase --tipo bug` | Force find-the-bug exercise |
 | `/awase --tipo explicar` | Force explain-the-code exercise |
+| `/awase --tipo theory` | Force pure theory question |
 | `/awase status` | Show the dev's profile |
 | `/awase skip` | Skip the session without penalizing the profile |
 | `/awase reset` | Reset the profile (asks for confirmation) |
@@ -51,10 +52,20 @@ Never mention the file path or the raw JSON to the user; use natural language.
 ### Step 1 — Read the profile
 Read `~/.awase/profile.json`. Create it if it doesn't exist.
 
-### Step 2 — Analyze session code
-Examine the code produced in this session. Identify relevant technical concepts:
-patterns, APIs, library functions, data structures, design techniques, etc.
+### Step 2 — Identify trainable concepts
+Examine the session and extract two layers of concepts:
+
+**Layer 1 — Surface concepts** (directly visible in the code): specific APIs, library
+functions, language features, data structures, and patterns that appear in the session.
+
+**Layer 2 — Underlying concepts** (implied by the work done): CS fundamentals, system
+design trade-offs, protocol behaviour, algorithmic complexity, architectural decisions,
+and domain knowledge that the session touched on but didn't make explicit. For example,
+if the session wrote a Redis cache, Layer 2 includes cache eviction strategies and
+consistency guarantees — even if no code about them was written.
+
 Discard trivial or overly basic concepts for the dev's level.
+Keep 3-5 candidates total across both layers.
 
 ### Step 3 — Select concept to drill
 Priority:
@@ -68,19 +79,20 @@ If no concept is available, tell the user briefly.
 ### Step 4 — Choose exercise type
 If the user forced a type with `--tipo`, use it.
 
-Otherwise, choose based on the concept's history:
+Otherwise, choose based on the concept's history and origin:
 
 | Concept state | Preferred types |
 |---|---|
-| New (no history) | `completar`, `compare` |
-| 1-2 correct repetitions | `bug`, `explicar` |
-| 3+ correct repetitions | any, prefer `explicar` |
+| New (no history), Layer 1 | `completar`, `compare` |
+| New (no history), Layer 2 | `theory`, `compare` |
+| 1-2 correct repetitions | `bug`, `explicar`, `theory` |
+| 3+ correct repetitions | any, prefer `theory` or `explicar` |
 
 Never repeat the same type as `last_exercise_type` for that concept.
 
 ### Step 5 — Generate the exercise
 
-Use real session code whenever possible.
+Use real session code for code-based types. For `theory`, no code is needed.
 The full exercise must be solvable in under 2 minutes.
 
 **`compare`** — two code versions, user picks the most appropriate and explains why:
@@ -126,6 +138,20 @@ Explain what this code does and why it is written this way:
 
 [code]
 ```
+
+**`theory`** — a direct conceptual question; no code required. Used for underlying
+concepts, system design trade-offs, CS fundamentals, and protocol behaviour:
+
+```
+**Exercise — [concept]**
+
+[Direct question about the concept. One or two sentences.]
+```
+
+Examples of good theory questions:
+- "What happens when a Redis key expires and a read request arrives at the same time?"
+- "What is the difference between optimistic and pessimistic locking, and when would you choose each?"
+- "Why does TCP guarantee order but UDP does not, and what cost does that come at?"
 
 ### Step 6 — Wait for user response
 Present the exercise and wait. Do not proceed until a response is received.
@@ -232,8 +258,10 @@ If the user does not confirm or responds with anything else, reply: `Cancelled.`
 ## General rules
 
 - An exercise must be solvable in under 2 minutes. Shorten if needed.
-- Always use real session code when possible; only invent code as a last resort.
+- For code-based types, use real session code when possible; only invent code as a last resort.
+- For `theory`, the question must be precise and answerable in 2-4 sentences.
 - Feedback is always concise: 3 lines of explanation maximum.
 - Do not drill trivial concepts (e.g. basic syntax the dev clearly masters).
 - Never mention the JSON file or the SM-2 algorithm to the user; speak of "profile" and "next review".
-- If the session has no relevant code, say so briefly and offer `/awase skip`.
+- If the session has no relevant code or concepts, say so briefly and offer `/awase skip`.
+- Balance code-based and theory exercises across sessions: do not run more than 3 consecutive code-based exercises without a `theory` one.
