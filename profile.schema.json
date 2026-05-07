@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/awase-skill/profile.schema.json",
+  "title": "Awase Profile",
+  "description": "Perfil personal de entrenamiento adaptativo del desarrollador",
+  "type": "object",
+  "required": ["version", "created_at", "concepts", "sessions"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1",
+      "description": "Versión del schema"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha de creación del perfil (ISO 8601)"
+    },
+    "last_session": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Fecha de la última sesión /awase"
+    },
+    "concepts": {
+      "type": "object",
+      "description": "Mapa de concept_id → estado SM-2. El concept_id es un slug legible (e.g. 'promise-allsettled')",
+      "additionalProperties": {
+        "$ref": "#/$defs/concept"
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "description": "Historial de sesiones /awase",
+      "items": {
+        "$ref": "#/$defs/session"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "concept": {
+      "type": "object",
+      "required": ["label", "interval", "easiness_factor", "repetitions", "next_review", "history"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Nombre legible del concepto (e.g. 'Promise.allSettled vs Promise.all')"
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Días hasta la próxima revisión (calculado por SM-2)"
+        },
+        "easiness_factor": {
+          "type": "number",
+          "minimum": 1.3,
+          "description": "Factor de facilidad SM-2. Valor inicial: 2.5"
+        },
+        "repetitions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Número de repeticiones consecutivas con calidad >= 3. Se resetea a 0 si q < 3"
+        },
+        "next_review": {
+          "type": "string",
+          "format": "date",
+          "description": "Fecha de la próxima revisión programada"
+        },
+        "last_quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Calidad de la última respuesta en escala SM-2 (0-5)"
+        },
+        "last_exercise_type": {
+          "type": "string",
+          "enum": ["compare", "completar", "bug", "explicar"],
+          "description": "Tipo del último ejercicio generado para este concepto"
+        },
+        "history": {
+          "type": "array",
+          "description": "Historial completo de revisiones de este concepto",
+          "items": {
+            "$ref": "#/$defs/revision"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "revision": {
+      "type": "object",
+      "required": ["date", "quality", "exercise_type"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Fecha de la revisión"
+        },
+        "quality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Calidad de la respuesta en escala SM-2"
+        },
+        "exercise_type": {
+          "type": "string",
+          "enum": ["compare", "completar", "bug", "explicar"],
+          "description": "Tipo de ejercicio utilizado"
+        }
+      },
+      "additionalProperties": false
+    },
+    "session": {
+      "type": "object",
+      "required": ["date", "exercises", "correct"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Fecha de la sesión"
+        },
+        "exercises": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Número total de ejercicios en la sesión"
+        },
+        "correct": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Número de respuestas correctas (quality >= 3)"
+        },
+        "concepts_trained": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs de los conceptos entrenados en esta sesión"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
