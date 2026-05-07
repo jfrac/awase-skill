@@ -1,3 +1,7 @@
+---
+description: Skill de entrenamiento adaptativo para desarrolladores. Genera 1-2 ejercicios técnicos breves basados en el código de la sesión y mantiene un perfil personal con spaced repetition (SM-2). Úsala cuando el usuario escriba '/awase', '/awase status', '/awase skip', '/awase reset' o '/awase --tipo <tipo>'.
+---
+
 # awase — Skill de entrenamiento adaptativo
 
 Esta skill se activa cuando el usuario escribe `/awase` (con o sin argumentos).

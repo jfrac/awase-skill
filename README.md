@@ -29,17 +29,26 @@ El perfil es **personal**: se guarda en `~/.awase/profile.json` en tu máquina, 
 
 ## Instalación
 
-### 1. Instalar el plugin
+### Opción A — Skill personal (más simple)
 
-Desde Claude Code, instala el plugin directamente desde GitHub:
+Copia el SKILL.md a tu directorio de skills global:
+
+```bash
+mkdir -p ~/.claude/skills/awase
+curl -fsSL https://raw.githubusercontent.com/jfrac/awase-skill/main/skills/awase/SKILL.md \
+  > ~/.claude/skills/awase/SKILL.md
+```
+
+### Opción B — Plugin via marketplace
 
 ```
-/plugin install github:jfrac/awase-skill
+/plugin marketplace add jfrac/awase-skill
+/plugin install awase@jfrac/awase-skill
 ```
 
-Esto hace que `/awase` esté disponible en **todos tus proyectos** de forma inmediata.
+En ambos casos, `/awase` queda disponible en **todos tus proyectos** de forma inmediata.
 
-### 2. El perfil se crea automáticamente
+### El perfil se crea automáticamente
 
 La primera vez que ejecutes `/awase`, el agente crea `~/.awase/profile.json` automáticamente. No necesitas hacer nada más.
 
