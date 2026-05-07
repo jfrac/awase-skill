@@ -1,239 +1,239 @@
 ---
-description: Skill de entrenamiento adaptativo para desarrolladores. Genera 1-2 ejercicios técnicos breves basados en el código de la sesión y mantiene un perfil personal con spaced repetition (SM-2). Úsala cuando el usuario escriba '/awase', '/awase status', '/awase skip', '/awase reset' o '/awase --tipo <tipo>'.
+description: Adaptive training skill for developers. Generates 1-2 short technical exercises based on session code and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
 ---
 
-# awase — Skill de entrenamiento adaptativo
+# awase — Adaptive developer training skill
 
-Esta skill se activa cuando el usuario escribe `/awase` (con o sin argumentos).
-Genera ejercicios técnicos breves basados en el código producido en la sesión actual
-y mantiene un perfil personal con spaced repetition (algoritmo SM-2).
+This skill activates when the user writes `/awase` (with or without arguments).
+It generates short technical exercises based on code produced in the current session
+and maintains a personal profile using spaced repetition (SM-2 algorithm).
 
 ---
 
-## Subcomandos
+## Subcommands
 
-| Invocación | Comportamiento |
+| Invocation | Behavior |
 |---|---|
-| `/awase` | Flujo normal: el agente elige tipo de ejercicio |
-| `/awase --tipo compare` | Fuerza tipo comparación |
-| `/awase --tipo completar` | Fuerza tipo completar snippet |
-| `/awase --tipo bug` | Fuerza tipo encontrar bug |
-| `/awase --tipo explicar` | Fuerza tipo explicar código |
-| `/awase status` | Muestra el perfil del dev |
-| `/awase skip` | Omite la sesión sin penalizar el perfil |
-| `/awase reset` | Resetea el perfil (pide confirmación) |
+| `/awase` | Normal flow: agent chooses exercise type |
+| `/awase --tipo compare` | Force comparison exercise |
+| `/awase --tipo completar` | Force snippet completion exercise |
+| `/awase --tipo bug` | Force find-the-bug exercise |
+| `/awase --tipo explicar` | Force explain-the-code exercise |
+| `/awase status` | Show the dev's profile |
+| `/awase skip` | Skip the session without penalizing the profile |
+| `/awase reset` | Reset the profile (asks for confirmation) |
 
 ---
 
-## Perfil personal
+## Personal profile
 
-**Ruta:** `~/.awase/profile.json`
+**Path:** `~/.awase/profile.json`
 
-Si el fichero no existe, créalo antes de continuar con esta estructura inicial:
+If the file does not exist, create it before continuing with this initial structure:
 
 ```json
 {
   "version": "1",
-  "created_at": "<hoy ISO 8601>",
+  "created_at": "<today ISO 8601>",
   "last_session": null,
   "concepts": {},
   "sessions": []
 }
 ```
 
-Usa siempre las herramientas `Read` y `Write` para leer y escribir el perfil.
-Nunca menciones la ruta del fichero ni el JSON directamente al usuario; usa lenguaje natural.
+Always use the `Read` and `Write` tools to read and write the profile.
+Never mention the file path or the raw JSON to the user; use natural language.
 
 ---
 
-## Flujo normal
+## Normal flow
 
-### Paso 1 — Leer el perfil
-Lee `~/.awase/profile.json`. Créalo si no existe.
+### Step 1 — Read the profile
+Read `~/.awase/profile.json`. Create it if it doesn't exist.
 
-### Paso 2 — Analizar el código de la sesión
-Examina el código producido en esta sesión. Identifica conceptos técnicos relevantes:
-patrones, APIs, funciones de librería, estructuras de datos, técnicas de diseño, etc.
-Descarta conceptos triviales o demasiado básicos para el nivel del dev.
+### Step 2 — Analyze session code
+Examine the code produced in this session. Identify relevant technical concepts:
+patterns, APIs, library functions, data structures, design techniques, etc.
+Discard trivial or overly basic concepts for the dev's level.
 
-### Paso 3 — Seleccionar concepto a entrenar
-Prioridad:
+### Step 3 — Select concept to drill
+Priority:
 
-1. Conceptos de la sesión con `next_review <= hoy` en el perfil (repaso pendiente)
-2. Conceptos de la sesión que no están en el perfil (nuevo)
-3. Cualquier concepto del perfil con `next_review <= hoy` (repaso genérico)
+1. Session concepts with `next_review <= today` in the profile (pending review)
+2. Session concepts not yet in the profile (new)
+3. Any profile concept with `next_review <= today` (generic review)
 
-Si no hay ningún concepto disponible, indícaselo al usuario con una línea breve.
+If no concept is available, tell the user briefly.
 
-### Paso 4 — Elegir tipo de ejercicio
-Si el usuario forzó un tipo con `--tipo`, úsalo.
+### Step 4 — Choose exercise type
+If the user forced a type with `--tipo`, use it.
 
-Si no, elige según el historial del concepto:
+Otherwise, choose based on the concept's history:
 
-| Estado del concepto | Tipos preferidos |
+| Concept state | Preferred types |
 |---|---|
-| Nuevo (sin historial) | `completar`, `compare` |
-| 1-2 repeticiones correctas | `bug`, `explicar` |
-| 3+ repeticiones correctas | cualquiera, preferir `explicar` |
+| New (no history) | `completar`, `compare` |
+| 1-2 correct repetitions | `bug`, `explicar` |
+| 3+ correct repetitions | any, prefer `explicar` |
 
-Nunca repitas el mismo tipo que `last_exercise_type` para ese concepto.
+Never repeat the same type as `last_exercise_type` for that concept.
 
-### Paso 5 — Generar el ejercicio
+### Step 5 — Generate the exercise
 
-Usa código real de la sesión siempre que sea posible.
-El ejercicio completo debe poder resolverse en menos de 2 minutos.
+Use real session code whenever possible.
+The full exercise must be solvable in under 2 minutes.
 
-**`compare`** — dos versiones de código, el usuario elige la más adecuada y explica por qué:
+**`compare`** — two code versions, user picks the most appropriate and explains why:
 
 ```
-**Ejercicio — [concepto]**
+**Exercise — [concept]**
 
-¿Cuál es más adecuada para [contexto breve]?
+Which is more appropriate for [brief context]?
 
 A)
-[código A]
+[code A]
 
 B)
-[código B]
+[code B]
 ```
 
-**`completar`** — snippet con huecos `___` que el usuario debe rellenar:
+**`completar`** — snippet with `___` gaps the user must fill in:
 
 ```
-**Ejercicio — [concepto]**
+**Exercise — [concept]**
 
-Completa el siguiente código:
+Complete the following code:
 
-[código con ___]
+[code with ___]
 ```
 
-**`bug`** — snippet con un bug sutil; el usuario debe encontrarlo y explicarlo:
+**`bug`** — snippet with a subtle bug; user must find and explain it:
 
 ```
-**Ejercicio — [concepto]**
+**Exercise — [concept]**
 
-Hay un bug en este código. ¿Lo encuentras?
+There is a bug in this code. Can you find it?
 
-[código con bug]
+[code with bug]
 ```
 
-**`explicar`** — bloque de código; el usuario explica qué hace y por qué:
+**`explicar`** — code block; user explains what it does and why:
 
 ```
-**Ejercicio — [concepto]**
+**Exercise — [concept]**
 
-Explica qué hace este código y por qué está escrito así:
+Explain what this code does and why it is written this way:
 
-[código]
+[code]
 ```
 
-### Paso 6 — Esperar la respuesta del usuario
-Presenta el ejercicio y espera. No avances hasta recibir una respuesta.
+### Step 6 — Wait for user response
+Present the exercise and wait. Do not proceed until a response is received.
 
-### Paso 7 — Evaluar la respuesta
+### Step 7 — Evaluate the response
 
-Mapea la calidad de la respuesta a la escala SM-2:
+Map response quality to the SM-2 scale:
 
-| q | Criterio |
+| q | Criterion |
 |---|---|
-| 5 | Correcto con explicación sólida |
-| 4 | Correcto |
-| 3 | Correcto pero con dudas o explicación incompleta |
-| 1 | Incorrecto pero el usuario reconoce el error tras el feedback |
-| 0 | Incorrecto sin comprensión |
+| 5 | Correct with solid explanation |
+| 4 | Correct |
+| 3 | Correct but hesitant or incomplete explanation |
+| 1 | Incorrect but user recognizes the error after feedback |
+| 0 | Incorrect without understanding |
 
-### Paso 8 — Aplicar SM-2 y actualizar perfil
+### Step 8 — Apply SM-2 and update profile
 
 ```
-si q < 3:
+if q < 3:
     interval = 1
     repetitions = 0
-si q >= 3:
-    si repetitions == 0: interval = 1
-    si repetitions == 1: interval = 6
-    si repetitions > 1: interval = round(interval * easiness_factor)
+if q >= 3:
+    if repetitions == 0: interval = 1
+    if repetitions == 1: interval = 6
+    if repetitions > 1: interval = round(interval * easiness_factor)
     easiness_factor = max(1.3, easiness_factor + 0.1 - (5-q) * (0.08 + (5-q) * 0.02))
     repetitions += 1
 
-next_review = hoy + interval días
+next_review = today + interval days
 ```
 
-Valores por defecto para un concepto nuevo: `easiness_factor=2.5`, `interval=1`, `repetitions=0`.
+Default values for a new concept: `easiness_factor=2.5`, `interval=1`, `repetitions=0`.
 
-Actualiza el concepto en `concepts` y añade una entrada al array `sessions` con:
+Update the concept in `concepts` and add an entry to the `sessions` array:
 ```json
 {
-  "date": "<hoy>",
+  "date": "<today>",
   "exercises": 1,
-  "correct": <1 si q>=3, 0 si no>,
+  "correct": <1 if q>=3, else 0>,
   "concepts_trained": ["<concept_id>"]
 }
 ```
 
-Si ya hay una entrada para hoy en `sessions`, acumula en lugar de añadir una nueva.
+If there is already an entry for today in `sessions`, accumulate instead of adding a new one.
 
-Actualiza `last_session` con la fecha de hoy.
+Update `last_session` with today's date.
 
-Escribe el perfil con `Write`.
+Write the profile with `Write`.
 
-### Paso 9 — Mostrar feedback
+### Step 9 — Show feedback
 
-Muestra en tres partes:
-1. `✓ Correcto.` o `✗ Incorrecto.` seguido de la explicación del concepto (máximo 3 líneas)
-2. Si fue incorrecto, una línea con la respuesta correcta
-3. `Próxima revisión de [concepto] en N días.`
-
----
-
-## Subcomando: status
-
-Lee el perfil y muestra:
-
-```
-**Perfil awase**
-
-Conceptos entrenados: N
-Sesiones totales: N
-Tasa de acierto global: N%
-
-**Próximas revisiones:**
-[concepto]        vence [fecha]    intervalo actual: N días
-
-**Conceptos nuevos disponibles en esta sesión:**
-[concepto]
-```
-
-Si el perfil está vacío, indica que todavía no hay datos.
+Show in three parts:
+1. `✓ Correct.` or `✗ Incorrect.` followed by a brief concept explanation (3 lines max)
+2. If incorrect, one line with the correct answer
+3. `Next review of [concept] in N days.`
 
 ---
 
-## Subcomando: skip
+## Subcommand: status
 
-Responde con una sola línea: `Sesión omitida. El perfil no ha cambiado.`
-No leas ni escribas el perfil.
+Read the profile and display:
+
+```
+**awase profile**
+
+Concepts trained: N
+Total sessions: N
+Global hit rate: N%
+
+**Upcoming reviews:**
+[concept]        due [date]    current interval: N days
+
+**New concepts available in this session:**
+[concept]
+```
+
+If the profile is empty, indicate there is no data yet.
 
 ---
 
-## Subcomando: reset
+## Subcommand: skip
 
-Pide confirmación explícita antes de actuar:
-
-```
-¿Seguro que quieres borrar todo el perfil? Escribe "confirmar" para continuar.
-```
-
-Si el usuario confirma, elimina `~/.awase/profile.json` usando `Bash` (`rm ~/.awase/profile.json`)
-y responde: `Perfil reseteado.`
-
-Si el usuario no confirma o responde otra cosa, responde: `Cancelado.`
+Reply with a single line: `Session skipped. Profile unchanged.`
+Do not read or write the profile.
 
 ---
 
-## Reglas generales
+## Subcommand: reset
 
-- Un ejercicio debe resolverse en menos de 2 minutos. Si necesitas más contexto, acórtalos.
-- Usa siempre código real de la sesión cuando sea posible; solo inventa código como último recurso.
-- El feedback es siempre conciso: máximo 3 líneas de explicación.
-- No entrenes conceptos triviales (p. ej. sintaxis básica que el dev domina claramente).
-- No menciones el fichero JSON ni el algoritmo SM-2 al usuario; habla de "perfil" y "próxima revisión".
-- Si la sesión no tiene código relevante, indícalo brevemente y ofrece `/awase skip`.
+Ask for explicit confirmation before acting:
+
+```
+Are you sure you want to delete the entire profile? Type "confirm" to continue.
+```
+
+If the user confirms, delete `~/.awase/profile.json` using `Bash` (`rm ~/.awase/profile.json`)
+and reply: `Profile reset.`
+
+If the user does not confirm or responds with anything else, reply: `Cancelled.`
+
+---
+
+## General rules
+
+- An exercise must be solvable in under 2 minutes. Shorten if needed.
+- Always use real session code when possible; only invent code as a last resort.
+- Feedback is always concise: 3 lines of explanation maximum.
+- Do not drill trivial concepts (e.g. basic syntax the dev clearly masters).
+- Never mention the JSON file or the SM-2 algorithm to the user; speak of "profile" and "next review".
+- If the session has no relevant code, say so briefly and offer `/awase skip`.

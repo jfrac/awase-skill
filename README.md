@@ -2,36 +2,36 @@
 
 > `/awase` — adaptive developer training skill for Claude Code
 
-Skill de entrenamiento adaptativo para desarrolladores que trabajan con agentes de IA. Se invoca en mitad de cualquier sesión de Claude Code y genera 1-2 ejercicios breves basados en el código que el agente acaba de producir.
+An adaptive training skill for developers working with AI agents. Invoke it mid-session in Claude Code and it generates 1-2 short exercises based on the code the agent just wrote.
 
-La idea es simple: el agente ya sabe qué código escribiste. En lugar de ignorarlo, `/awase` lo convierte en material de entrenamiento personalizado para que no pierdas habilidades técnicas por delegación.
+The idea is simple: the agent already knows what code you wrote. Instead of ignoring it, `/awase` turns it into personalized training material so you don't lose technical skills through delegation.
 
 ---
 
-## Cómo funciona
+## How it works
 
-1. Trabajas con Claude Code normalmente
-2. En cualquier momento escribes `/awase`
-3. El agente analiza el código reciente de la sesión
-4. Genera 1-2 ejercicios cortos (< 2 minutos en total)
-5. Da feedback inmediato
-6. Actualiza tu perfil personal con el resultado
+1. Work with Claude Code normally
+2. At any point type `/awase`
+3. The agent analyzes the code produced in the session
+4. Generates 1-2 short exercises (< 2 minutes total)
+5. Gives immediate feedback
+6. Updates your personal profile with the result
 
-Los ejercicios pueden ser de cuatro tipos: **comparar** dos opciones de código, **completar** un snippet, **encontrar un bug**, o **explicar** qué hace un bloque. El agente elige el tipo más adecuado según tu historial.
+Exercises come in four types: **compare** two code options, **complete** a snippet, **find a bug**, or **explain** what a block does. The agent picks the most appropriate type based on your history.
 
 ## Spaced Repetition
 
-El sistema usa el algoritmo **SM-2** (el mismo que Anki) para decidir qué entrenar. Cada concepto técnico tiene un intervalo de revisión que se alarga si aciertas y se acorta si fallas. Con el tiempo, el agente sabe exactamente qué necesitas repasar y cuándo.
+The system uses the **SM-2** algorithm (the same one Anki uses) to decide what to drill. Each technical concept has a review interval that lengthens when you get it right and shortens when you don't. Over time, the agent knows exactly what you need to revisit and when.
 
-El perfil es **personal**: se guarda en `~/.awase/profile.json` en tu máquina, no en el repo.
+The profile is **personal**: stored at `~/.awase/profile.json` on your machine, never in the repo.
 
 ---
 
-## Instalación
+## Installation
 
-### Opción A — Skill personal (más simple)
+### Option A — Personal skill (simplest)
 
-Copia el SKILL.md a tu directorio de skills global:
+Copy the SKILL.md to your global skills directory:
 
 ```bash
 mkdir -p ~/.claude/skills/awase
@@ -39,20 +39,20 @@ curl -fsSL https://raw.githubusercontent.com/jfrac/awase-skill/main/skills/awase
   > ~/.claude/skills/awase/SKILL.md
 ```
 
-### Opción B — Plugin via marketplace
+### Option B — Plugin via marketplace
 
 ```
 /plugin marketplace add jfrac/awase-skill
 /plugin install awase@jfrac/awase-skill
 ```
 
-En ambos casos, `/awase` queda disponible en **todos tus proyectos** de forma inmediata.
+In both cases, `/awase` becomes available in **all your projects** immediately.
 
-### El perfil se crea automáticamente
+### Profile is created automatically
 
-La primera vez que ejecutes `/awase`, el agente crea `~/.awase/profile.json` automáticamente. No necesitas hacer nada más.
+The first time you run `/awase`, the agent creates `~/.awase/profile.json` automatically. Nothing else to do.
 
-Opcional: añade `~/.awase/` a tu `.gitignore` global para asegurarte de que el perfil nunca se commitea.
+Optional: add `~/.awase/` to your global `.gitignore` to make sure the profile is never committed.
 
 ```bash
 echo "~/.awase/" >> ~/.gitignore_global
@@ -61,29 +61,29 @@ git config --global core.excludesfile ~/.gitignore_global
 
 ---
 
-## Uso
+## Usage
 
 ```
-/awase                    flujo normal, el agente decide
-/awase --tipo compare     fuerza ejercicio de comparación
-/awase --tipo completar   fuerza ejercicio de completar snippet
-/awase --tipo bug         fuerza ejercicio de encontrar bug
-/awase --tipo explicar    fuerza ejercicio de explicar código
-/awase status             muestra tu perfil: conceptos, tasas de acierto, próximas revisiones
-/awase skip               omite la sesión sin penalizar el perfil
-/awase reset              resetea el perfil completo (pide confirmación)
+/awase                    normal flow, agent decides
+/awase --tipo compare     force comparison exercise
+/awase --tipo completar   force snippet completion exercise
+/awase --tipo bug         force find-the-bug exercise
+/awase --tipo explicar    force explain-the-code exercise
+/awase status             show your profile: concepts, hit rates, upcoming reviews
+/awase skip               skip the session without penalizing the profile
+/awase reset              reset the full profile (asks for confirmation)
 ```
 
 ---
 
-## Ejemplo de sesión
+## Example session
 
 ```
 > /awase
 
-**Ejercicio — `Promise.all` vs `Promise.allSettled`**
+**Exercise — `Promise.all` vs `Promise.allSettled`**
 
-¿Cuál es más adecuada para el `processUsers` que acabamos de escribir?
+Which is more appropriate for the `processUsers` function we just wrote?
 
 A)
 const results = await Promise.all(ids.map(fetchUser));
@@ -93,27 +93,27 @@ const results = await Promise.allSettled(ids.map(fetchUser));
 
 ---
 
-> B, porque fetchUser puede fallar y no quiero que cancele el resto
+> B, because fetchUser can fail and I don't want it to cancel the rest
 
-✓ Correcto. `Promise.allSettled` espera a todas las promesas independientemente
-de si fallan, ideal cuando quieres resultados parciales en lugar de un fallo total.
+✓ Correct. `Promise.allSettled` waits for all promises regardless of whether
+they fail, ideal when you want partial results instead of a total failure.
 
-Perfil actualizado. Próxima revisión de `Promise.allSettled` en 6 días.
+Profile updated. Next review of `Promise.allSettled` in 6 days.
 ```
 
 ---
 
-## Estructura del repo
+## Repo structure
 
 ```
 awase-skill/
   .claude-plugin/
-    plugin.json           manifiesto del plugin
+    plugin.json           plugin manifest
   skills/
     awase/
-      SKILL.md            instrucciones para el agente
-  profile.schema.json     estructura del perfil personal
-  README.md               este fichero
+      SKILL.md            agent instructions
+  profile.schema.json     personal profile structure
+  README.md               this file
 ```
 
-El perfil del dev **no** está en el repo. Se guarda localmente en `~/.awase/profile.json`.
+The dev profile is **not** in the repo. It is stored locally at `~/.awase/profile.json`.
