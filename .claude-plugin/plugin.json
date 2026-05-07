@@ -1,0 +1,7 @@
+{
+  "name": "awase",
+  "description": "Adaptive developer training skill for Claude Code. Generates short exercises from session code using spaced repetition (SM-2).",
+  "author": {
+    "name": "Juanfra"
+  }
+}

@@ -29,19 +29,15 @@ El perfil es **personal**: se guarda en `~/.awase/profile.json` en tu máquina, 
 
 ## Instalación
 
-### 1. Añadir la skill a Claude Code
+### 1. Instalar el plugin
 
-Copia el contenido de `SKILL.md` a tu fichero de configuración de Claude Code:
+Desde Claude Code, instala el plugin directamente desde GitHub:
 
-**Global** (disponible en todos tus proyectos):
 ```
-~/.claude/CLAUDE.md
+/plugin install github:jfrac/awase-skill
 ```
 
-**Por proyecto** (solo en este repo):
-```
-.claude/CLAUDE.md
-```
+Esto hace que `/awase` esté disponible en **todos tus proyectos** de forma inmediata.
 
 ### 2. El perfil se crea automáticamente
 
@@ -102,9 +98,13 @@ Perfil actualizado. Próxima revisión de `Promise.allSettled` en 6 días.
 
 ```
 awase-skill/
-  SKILL.md              instrucciones para el agente
-  profile.schema.json   estructura del perfil personal
-  README.md             este fichero
+  .claude-plugin/
+    plugin.json           manifiesto del plugin
+  skills/
+    awase/
+      SKILL.md            instrucciones para el agente
+  profile.schema.json     estructura del perfil personal
+  README.md               este fichero
 ```
 
 El perfil del dev **no** está en el repo. Se guarda localmente en `~/.awase/profile.json`.
