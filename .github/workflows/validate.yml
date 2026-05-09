@@ -1,0 +1,147 @@
+name: Validate Skill Structure
+
+on:
+  pull_request:
+    paths:
+      - 'skills/awase/**'
+      - 'profile.schema.json'
+      - '.claude-plugin/**'
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate skill structure and schema
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install JSON Schema validator
+        run: npm install -g ajv-cli
+
+      - name: Validate profile.schema.json syntax
+        run: |
+          echo "Validating profile.schema.json is valid JSON..."
+          cat profile.schema.json | jq empty
+
+      - name: Validate SKILL.md YAML frontmatter
+        run: |
+          echo "Checking SKILL.md has YAML frontmatter..."
+          if ! head -n 1 skills/awase/SKILL.md | grep -q "^---$"; then
+            echo "❌ SKILL.md missing YAML frontmatter (must start with '---')"
+            exit 1
+          fi
+          echo "✅ SKILL.md has YAML frontmatter"
+
+      - name: Validate plugin.json syntax
+        run: |
+          echo "Validating plugin.json is valid JSON..."
+          cat .claude-plugin/plugin.json | jq empty
+
+      - name: Validate plugin.json structure
+        run: |
+          echo "Checking plugin.json has required fields..."
+          if ! jq -e '.name' .claude-plugin/plugin.json > /dev/null; then
+            echo "❌ plugin.json missing 'name' field"
+            exit 1
+          fi
+          if ! jq -e '.description' .claude-plugin/plugin.json > /dev/null; then
+            echo "❌ plugin.json missing 'description' field"
+            exit 1
+          fi
+          echo "✅ plugin.json structure is valid"
+
+      - name: Validate evals.json syntax
+        run: |
+          echo "Validating evals.json is valid JSON..."
+          cat evals/evals.json | jq empty
+
+      - name: Validate evals.json structure
+        run: |
+          echo "Checking evals.json has required fields..."
+          if ! jq -e '.skill_name' evals/evals.json > /dev/null; then
+            echo "❌ evals.json missing 'skill_name' field"
+            exit 1
+          fi
+          if ! jq -e '.evals' evals/evals.json > /dev/null; then
+            echo "❌ evals.json missing 'evals' array"
+            exit 1
+          fi
+
+          # Check each eval has required fields
+          eval_count=$(jq '.evals | length' evals/evals.json)
+          echo "Found $eval_count eval test cases"
+
+          for i in $(seq 0 $((eval_count - 1))); do
+            if ! jq -e ".evals[$i].id" evals/evals.json > /dev/null; then
+              echo "❌ Eval $i missing 'id' field"
+              exit 1
+            fi
+            if ! jq -e ".evals[$i].prompt" evals/evals.json > /dev/null; then
+              echo "❌ Eval $i missing 'prompt' field"
+              exit 1
+            fi
+            if ! jq -e ".evals[$i].expected_output" evals/evals.json > /dev/null; then
+              echo "❌ Eval $i missing 'expected_output' field"
+              exit 1
+            fi
+          done
+          echo "✅ All $eval_count evals have required fields"
+
+      - name: Validate fixture profiles against schema
+        run: |
+          echo "Validating fixture profiles match profile.schema.json..."
+
+          for profile in evals/fixtures/profiles/*.json; do
+            echo "Validating $(basename $profile)..."
+            ajv validate -s profile.schema.json -d "$profile" --strict=false
+          done
+
+          echo "✅ All fixture profiles are valid"
+
+      - name: Check required files exist
+        run: |
+          echo "Checking required files exist..."
+
+          required_files=(
+            "skills/awase/SKILL.md"
+            ".claude-plugin/plugin.json"
+            "profile.schema.json"
+            "evals/evals.json"
+            "evals/README.md"
+            "README.md"
+            "CLAUDE.md"
+          )
+
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Required file missing: $file"
+              exit 1
+            fi
+          done
+
+          echo "✅ All required files exist"
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════╗"
+          echo "║  ✅ All validations passed!           ║"
+          echo "╚════════════════════════════════════════╝"
+          echo ""
+          echo "Validated:"
+          echo "  • JSON syntax (profile.schema.json, plugin.json, evals.json)"
+          echo "  • YAML frontmatter (SKILL.md)"
+          echo "  • Schema compliance (fixture profiles)"
+          echo "  • File structure completeness"
+          echo ""
+          echo "Note: Full evals run manually with /skill-creator to avoid API costs."

@@ -1,0 +1,102 @@
+{
+  "skill_name": "awase",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/awase",
+      "expected_output": "Generates an exercise for a new concept extracted from the Redis caching session. Exercise type should be 'completar' or 'compare' for Layer 1 concept. Profile is created with correct SM-2 defaults.",
+      "files": [],
+      "expectations": [
+        "Exercise is generated with one of 5 valid types: compare, completar, bug, explicar, or theory",
+        "Exercise mentions a concept from the session (Redis, caching, TTL, etc.)",
+        "Profile file exists at ~/.awase/profile.json after execution",
+        "For new concept: easiness_factor = 2.5, interval = 1, repetitions = 0"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/awase",
+      "expected_output": "Brief message indicating no trainable concepts are available in an empty session. Suggests using '/awase skip' as an option.",
+      "files": [],
+      "expectations": [
+        "Output contains message about no trainable concepts or no relevant code",
+        "Profile is not modified (last_session remains unchanged)",
+        "Output mentions '/awase skip' as an option",
+        "No exercise is generated"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/awase",
+      "expected_output": "Selects a pending review concept from the session (redis-caching or promise-error-handling) which both have next_review <= today. Exercise type respects last_exercise_type constraint.",
+      "files": [],
+      "expectations": [
+        "Exercise is about 'redis-caching' or 'promise-error-handling' (concepts with next_review = 2026-05-09)",
+        "Exercise type is NOT the same as last_exercise_type for selected concept",
+        "If redis-caching selected: type is NOT 'completar' (last was completar)",
+        "If promise-error-handling selected: type is NOT 'bug' (last was bug)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/awase --tipo theory",
+      "expected_output": "Generates a theory exercise (pure conceptual question with no code required) despite concept being Layer 1. Forced type overrides default selection logic.",
+      "files": [],
+      "expectations": [
+        "Exercise type is 'theory'",
+        "Exercise contains a direct conceptual question",
+        "Question is answerable in 2-4 sentences",
+        "No code snippet is required in the answer"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/awase status",
+      "expected_output": "Displays profile statistics including concepts trained (3), total sessions (3), global hit rate (66.67%), and upcoming reviews with dates.",
+      "files": [],
+      "expectations": [
+        "Output contains 'Concepts trained: 3'",
+        "Output contains 'Total sessions: 3'",
+        "Output contains 'Global hit rate:' with percentage (calculated as correct/total exercises)",
+        "Lists upcoming reviews with 'redis-caching' and 'promise-error-handling' (both due 2026-05-09)"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/awase skip",
+      "expected_output": "Confirms session skipped without modifying the profile. Single line response.",
+      "files": [],
+      "expectations": [
+        "Output is 'Session skipped. Profile unchanged.' or similar brief message",
+        "Profile file is not read or written",
+        "No exercise is generated",
+        "No side effects on profile data"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/awase reset",
+      "expected_output": "Asks for explicit confirmation before deleting profile. Prompts user to type 'confirm' to continue.",
+      "files": [],
+      "expectations": [
+        "Output asks for confirmation",
+        "Output mentions typing 'confirm' to continue",
+        "Profile is NOT deleted until user confirms",
+        "Waits for user response before taking action"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/awase",
+      "expected_output": "After user responds with quality 5 (perfect answer) to a new concept exercise, SM-2 algorithm updates: interval=1, repetitions=1, easiness_factor increases to ~2.6, next_review = today + 1 day.",
+      "files": [],
+      "expectations": [
+        "Profile concept has repetitions = 1 (incremented from 0)",
+        "Profile concept has interval = 1 (first success interval)",
+        "Profile concept has easiness_factor >= 2.5 and <= 2.7 (increased from 2.5)",
+        "Profile concept has next_review = date 1 day from today",
+        "Session entry added with exercises: 1, correct: 1"
+      ]
+    }
+  ]
+}
