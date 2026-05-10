@@ -40,11 +40,16 @@
   "$defs": {
     "concept": {
       "type": "object",
-      "required": ["label", "interval", "easiness_factor", "repetitions", "next_review", "history"],
+      "required": ["name", "layer", "interval", "easiness_factor", "repetitions", "next_review", "history"],
       "properties": {
-        "label": {
+        "name": {
           "type": "string",
           "description": "Nombre legible del concepto (e.g. 'Promise.allSettled vs Promise.all')"
+        },
+        "layer": {
+          "type": "integer",
+          "enum": [1, 2],
+          "description": "Capa del concepto: 1 = Surface (código visible), 2 = Underlying (fundamentos implícitos)"
         },
         "interval": {
           "type": "integer",
