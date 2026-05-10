@@ -7,3 +7,7 @@ evals/*.html
 
 # development planning files
 .planning/
+
+# eval workspace (local test results)
+awase-workspace/
+*-workspace/
