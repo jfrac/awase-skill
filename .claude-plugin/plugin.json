@@ -2,6 +2,12 @@
   "name": "awase",
   "description": "Adaptive developer training skill for Claude Code. Generates short exercises from session code using spaced repetition (SM-2).",
   "author": {
-    "name": "Juanfra"
+    "name": "Juanfra",
+    "url": "https://github.com/jfrac"
+  },
+  "homepage": "https://github.com/jfrac/awase-skill",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jfrac/awase-skill.git"
   }
 }

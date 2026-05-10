@@ -1,0 +1,10 @@
+{
+  "name": "awase-skill",
+  "description": "Official marketplace for the awase adaptive training skill",
+  "plugins": [
+    {
+      "name": "awase",
+      "path": "."
+    }
+  ]
+}
