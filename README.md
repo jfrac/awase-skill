@@ -17,7 +17,7 @@ The idea is simple: the agent already knows what code you wrote. Instead of igno
 5. Gives immediate feedback
 6. Updates your personal profile with the result
 
-Exercises come in four types: **compare** two code options, **complete** a snippet, **find a bug**, or **explain** what a block does. The agent picks the most appropriate type based on your history.
+Exercises come in five types: **compare** two code options, **complete** a snippet, **find a bug**, **explain** what a block does, or **theory** questions about underlying concepts. The agent picks the most appropriate type based on your history.
 
 ## Spaced Repetition
 
@@ -103,17 +103,89 @@ Profile updated. Next review of `Promise.allSettled` in 6 days.
 
 ---
 
+## Testing & Validation
+
+This skill includes a comprehensive test suite using the skill-creator eval framework.
+
+### Running Tests Manually
+
+```bash
+# 1. Start Claude Code
+claude
+
+# 2. In the session, invoke skill-creator
+/skill-creator
+
+# 3. Run evals
+Evaluate the awase skill using the evals at ~/.claude/skills/awase/evals/evals.json
+```
+
+**8 test cases** cover:
+- New concept extraction and exercise generation
+- Pending review priority selection
+- SM-2 algorithm correctness (interval, repetitions, easiness_factor)
+- Subcommands (status, skip, reset)
+- Edge cases (empty session, forced type)
+
+See [evals/README.md](evals/README.md) for detailed instructions and expectations.
+
+### Automated Validation (CI)
+
+GitHub Actions validates schema and structure on each PR:
+- ✅ JSON schema validation (`profile.schema.json`)
+- ✅ YAML frontmatter validation (`SKILL.md`)
+- ✅ File structure checks
+
+**Note**: Full evals run manually (not in CI) to avoid API costs.
+
+### Example Test Scenarios
+
+**Scenario 1: New Concept from Redis Session**
+```
+User works on Redis caching code
+→ /awase extracts concepts: redis.get(), redis.set(), TTL, cache eviction
+→ Generates completar or compare exercise for Layer 1 concept
+→ Profile created with SM-2 defaults (easiness=2.5, interval=1, reps=0)
+```
+
+**Scenario 2: Pending Review Priority**
+```
+User has 2 concepts due today
+→ /awase prioritizes concept from current session
+→ Exercise type respects last_exercise_type (no consecutive repeats)
+→ SM-2 updates interval based on response quality
+```
+
+**Scenario 3: Theory Exercise (Layer 2)**
+```
+User writes database transaction code
+→ /awase extracts underlying concept: "transaction isolation levels"
+→ Generates theory question (no code required)
+→ "What is the difference between optimistic and pessimistic locking?"
+```
+
+See `evals/fixtures/session-examples/` for complete session code samples.
+
+---
+
 ## Repo structure
 
 ```
 awase-skill/
   .claude-plugin/
-    plugin.json           plugin manifest
+    plugin.json                      plugin manifest
   skills/
     awase/
-      SKILL.md            agent instructions
-  profile.schema.json     personal profile structure
-  README.md               this file
+      SKILL.md                       agent instructions
+  evals/
+    evals.json                       test cases for skill-creator
+    README.md                        testing instructions
+    fixtures/
+      profiles/                      example profile states
+      session-examples/              sample session code
+  profile.schema.json                personal profile structure
+  README.md                          this file
+  CLAUDE.md                          guidance for Claude Code
 ```
 
 The dev profile is **not** in the repo. It is stored locally at `~/.awase/profile.json`.

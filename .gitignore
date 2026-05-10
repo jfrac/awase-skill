@@ -1,1 +1,13 @@
 .claude/settings.local.json
+
+# skill-creator generated files
+evals/grading.json
+evals/eval_metadata.json
+evals/*.html
+
+# development planning files
+.planning/
+
+# eval workspace (local test results)
+awase-workspace/
+*-workspace/
