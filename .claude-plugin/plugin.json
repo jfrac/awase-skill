@@ -6,5 +6,6 @@
     "url": "https://github.com/jfrac"
   },
   "homepage": "https://github.com/jfrac/awase-skill",
-  "repository": "https://github.com/jfrac/awase-skill.git"
+  "repository": "https://github.com/jfrac/awase-skill.git",
+  "skills": "./skills/"
 }
