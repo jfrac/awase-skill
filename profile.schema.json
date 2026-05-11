@@ -6,6 +6,12 @@
   "type": "object",
   "required": ["version", "created_at", "concepts", "sessions"],
   "properties": {
+    "consecutive_code_exercises": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Número de ejercicios code-based consecutivos desde el último theory. Se resetea a 0 al hacer un theory."
+    },
     "version": {
       "type": "string",
       "const": "1",

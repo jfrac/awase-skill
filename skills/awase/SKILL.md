@@ -1,5 +1,5 @@
 ---
-description: Adaptive training skill for developers. Generates 1-2 short technical exercises based on session code and underlying concepts, and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
+description: Adaptive training skill for developers. Generates a short technical exercise based on session code and underlying concepts, and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
 argument-hint: "[--tipo <type> | status | skip | reset]"
 allowed-tools: Read Write Bash(mkdir *) Bash(rm ~/.awase/profile.json)
 ---
@@ -39,6 +39,7 @@ If the file does not exist, create it before continuing with this initial struct
   "version": "1",
   "created_at": "<today ISO 8601>",
   "last_session": null,
+  "consecutive_code_exercises": 0,
   "concepts": {},
   "sessions": []
 }
@@ -80,6 +81,8 @@ If no concept is available, tell the user briefly.
 
 ### Step 4 — Choose exercise type
 If the user forced a type with `--tipo`, use it.
+
+If `consecutive_code_exercises >= 3` in the profile, force `theory` regardless of concept state.
 
 Otherwise, choose based on the concept's history and origin:
 
@@ -202,6 +205,8 @@ If there is already an entry for today in `sessions`, accumulate instead of addi
 
 Update `last_session` with today's date.
 
+If the exercise type was `theory`, set `consecutive_code_exercises = 0`. Otherwise, increment it by 1.
+
 Write the profile with `Write`.
 
 ### Step 9 — Show feedback
@@ -266,4 +271,3 @@ If the user does not confirm or responds with anything else, reply: `Cancelled.`
 - Do not drill trivial concepts (e.g. basic syntax the dev clearly masters).
 - Never mention the JSON file or the SM-2 algorithm to the user; speak of "profile" and "next review".
 - If the session has no relevant code or concepts, say so briefly and offer `/awase skip`.
-- Balance code-based and theory exercises across sessions: do not run more than 3 consecutive code-based exercises without a `theory` one.
