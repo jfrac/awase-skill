@@ -106,3 +106,7 @@ awase-skill/
     fixtures/            sample profiles and session code
   profile.schema.json    profile structure (JSON Schema)
 ```
+
+---
+
+*awase (合わせ) — Japanese for "bringing together" or "matching"; the act of combining elements into a coherent whole.*
