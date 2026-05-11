@@ -25,31 +25,27 @@ Exercises come in five types: **compare** two approaches, **complete** a snippet
 
 ## Example session
 
-You type `/awase`. The agent looks at the session and picks a concept to test.
-
----
-
-**Exercise — `Promise.all` vs `Promise.allSettled`**
-
-*Which is more appropriate for the `processUsers` function we just wrote?*
-
-**A)**
-```js
-const results = await Promise.all(ids.map(fetchUser));
 ```
+> /awase
 
-**B)**
-```js
-const results = await Promise.allSettled(ids.map(fetchUser));
-```
+┌─ Exercise ──────────────────────────────────────────────────────────┐
+│  Promise.all vs Promise.allSettled                                  │
+└─────────────────────────────────────────────────────────────────────┘
 
----
+Which is more appropriate for the processUsers function we just wrote?
+
+  A)  const results = await Promise.all(ids.map(fetchUser));
+
+  B)  const results = await Promise.allSettled(ids.map(fetchUser));
 
 > B, because fetchUser can fail and I don't want it to cancel the rest
 
-**✓ Correct.** `Promise.allSettled` waits for all promises regardless of individual failures — ideal when you want partial results instead of a total abort.
+✓ Correct. Promise.allSettled waits for all promises regardless of
+  individual failures — ideal when you want partial results instead
+  of a total abort.
 
-> *Next review of `Promise.allSettled` in 6 days.*
+  Next review of Promise.allSettled in 6 days.
+```
 
 ---
 
