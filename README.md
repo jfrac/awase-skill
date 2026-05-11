@@ -4,11 +4,8 @@
 
 </div>
 
-*awase (合わせ) — Japanese for "bringing together" or "matching"; the act of combining elements into a coherent whole.*
+>*awase (合わせ) — Japanese for "bringing together" or "matching"; the act of combining elements into a coherent whole.*
 
----
-
-> Adaptive developer training skill for Claude Code
 
 You work with AI agents all day. The agent writes the code; you stay sharp by understanding it.
 `/awase` turns the code from your session into short exercises — personalized, spaced, and done in under 2 minutes.
