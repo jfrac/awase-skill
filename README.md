@@ -23,11 +23,33 @@ You work with AI agents all day. The agent writes the code; you stay sharp by un
 
 Exercises come in five types: **compare** two approaches, **complete** a snippet, **find a bug**, **explain** a block, or answer a **theory** question. The type is chosen based on the concept and your history with it.
 
-## Spaced Repetition
+## Example session
 
-awase uses the **SM-2** algorithm (the same one behind Anki) to schedule reviews. Concepts you know well are reviewed less often; ones you struggle with come back sooner. Over time, the agent builds a precise picture of what you need to revisit and when.
+You type `/awase`. The agent looks at the session and picks a concept to test.
 
-Your profile lives at `~/.awase/profile.json` — on your machine, never in the repo.
+---
+
+**Exercise — `Promise.all` vs `Promise.allSettled`**
+
+*Which is more appropriate for the `processUsers` function we just wrote?*
+
+**A)**
+```js
+const results = await Promise.all(ids.map(fetchUser));
+```
+
+**B)**
+```js
+const results = await Promise.allSettled(ids.map(fetchUser));
+```
+
+---
+
+> B, because fetchUser can fail and I don't want it to cancel the rest
+
+**✓ Correct.** `Promise.allSettled` waits for all promises regardless of individual failures — ideal when you want partial results instead of a total abort.
+
+> *Next review of `Promise.allSettled` in 6 days.*
 
 ---
 
@@ -67,47 +89,8 @@ curl -fsSL https://raw.githubusercontent.com/jfrac/awase-skill/main/skills/awase
 
 ---
 
-## Example session
+## Spaced Repetition
 
-```
-/awase
-```
+awase uses the **SM-2** algorithm (the same one behind Anki) to schedule reviews. Concepts you know well are reviewed less often; ones you struggle with come back sooner. Over time, the agent builds a precise picture of what you need to revisit and when.
 
-**Exercise — `Promise.all` vs `Promise.allSettled`**
-
-Which is more appropriate for the `processUsers` function we just wrote?
-
-**A)**
-```js
-const results = await Promise.all(ids.map(fetchUser));
-```
-
-**B)**
-```js
-const results = await Promise.allSettled(ids.map(fetchUser));
-```
-
----
-
-> B, because fetchUser can fail and I don't want it to cancel the rest
-
-✓ Correct. `Promise.allSettled` waits for all promises regardless of individual failures — ideal when you want partial results instead of a total abort.
-
-*Next review of `Promise.allSettled` in 6 days.*
-
----
-
-## Repo structure
-
-```
-awase-skill/
-  .claude-plugin/
-    plugin.json          plugin manifest
-  skills/
-    awase/
-      SKILL.md           agent instructions
-  evals/
-    evals.json           test cases
-    fixtures/            sample profiles and session code
-  profile.schema.json    profile structure (JSON Schema)
-```
+Your profile lives at `~/.awase/profile.json` — on your machine, never in the repo.
