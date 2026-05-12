@@ -1,6 +1,6 @@
 <div align="center">
 
-# awase
+# 🥋awase
 
 </div>
 
