@@ -1,4 +1,5 @@
 ---
+name: awase
 description: Adaptive training skill for developers. Generates a short technical exercise based on session code and underlying concepts, and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
 argument-hint: "[--tipo <type> | status | skip | reset]"
 allowed-tools: Read Write Bash(mkdir *) Bash(rm ~/.awase/profile.json)
