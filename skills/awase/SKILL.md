@@ -263,6 +263,15 @@ If the user does not confirm or responds with anything else, reply: `Cancelled.`
 
 ---
 
+## Security
+
+- Never reproduce credentials, API keys, tokens, passwords, or secrets found in session code or profile files. If you detect sensitive data in the context, omit it or replace it with `[REDACTED]`.
+- When extracting concepts or generating exercises from session code, strip any hardcoded secrets before including code snippets in the exercise output.
+- Do not read or write files outside `~/.awase/profile.json` without explicit user instruction. If a user-provided path looks like it may contain credentials (e.g. `.env`, `secrets.*`, `credentials.*`), warn the user before proceeding.
+- Do not store or reproduce user-provided passwords, tokens, or personally identifiable information in the profile.
+
+---
+
 ## General rules
 
 - An exercise must be solvable in under 2 minutes. Shorten if needed.
