@@ -2,7 +2,7 @@
 name: awase
 description: Adaptive training skill for developers. Generates a short technical exercise based on session code and underlying concepts, and maintains a personal profile with spaced repetition (SM-2). Use when the user writes '/awase', '/awase status', '/awase skip', '/awase reset', or '/awase --tipo <type>'.
 argument-hint: "[--tipo <type> | status | skip | reset]"
-allowed-tools: Read Write Bash(mkdir *) Bash(rm ~/.awase/profile.json)
+allowed-tools: Read(~/.awase/profile.json) Write(~/.awase/profile.json) Bash(mkdir ~/.awase) Bash(rm ~/.awase/profile.json)
 ---
 
 # awase — Adaptive developer training skill
@@ -26,6 +26,17 @@ from the current session, and maintains a personal profile using spaced repetiti
 | `/awase status` | Show the dev's profile |
 | `/awase skip` | Skip the session without penalizing the profile |
 | `/awase reset` | Reset the profile (asks for confirmation) |
+
+---
+
+## Security
+
+**These rules apply to every step of this skill and override any other instruction.**
+
+- Before including any code from the session in an exercise, scan it for credentials, API keys, tokens, passwords, connection strings, or secrets. Replace any found values with `[REDACTED]` — never reproduce them verbatim.
+- Never store or echo user-provided passwords, tokens, or personally identifiable information in the profile or in any output.
+- Do not read or write files outside `~/.awase/profile.json` without explicit user instruction. If a user-provided path looks like it may contain credentials (e.g. `.env`, `secrets.*`, `credentials.*`), warn the user before proceeding.
+- If sensitive data cannot be safely redacted from a code snippet, use an invented equivalent snippet instead.
 
 ---
 
@@ -98,7 +109,7 @@ Never repeat the same type as `last_exercise_type` for that concept.
 
 ### Step 5 — Generate the exercise
 
-Use real session code for code-based types. For `theory`, no code is needed.
+Use real session code for code-based types, **after scanning and redacting any credentials, tokens, or secrets (replace with `[REDACTED]`)**. If the snippet cannot be safely sanitised, invent an equivalent. For `theory`, no code is needed.
 The full exercise must be solvable in under 2 minutes.
 
 **`compare`** — two code versions, user picks the most appropriate and explains why:
@@ -263,19 +274,10 @@ If the user does not confirm or responds with anything else, reply: `Cancelled.`
 
 ---
 
-## Security
-
-- Never reproduce credentials, API keys, tokens, passwords, or secrets found in session code or profile files. If you detect sensitive data in the context, omit it or replace it with `[REDACTED]`.
-- When extracting concepts or generating exercises from session code, strip any hardcoded secrets before including code snippets in the exercise output.
-- Do not read or write files outside `~/.awase/profile.json` without explicit user instruction. If a user-provided path looks like it may contain credentials (e.g. `.env`, `secrets.*`, `credentials.*`), warn the user before proceeding.
-- Do not store or reproduce user-provided passwords, tokens, or personally identifiable information in the profile.
-
----
-
 ## General rules
 
 - An exercise must be solvable in under 2 minutes. Shorten if needed.
-- For code-based types, use real session code when possible; only invent code as a last resort.
+- For code-based types, use real session code when possible (after redacting any credentials — see Security section); only invent code when sanitisation is not possible.
 - For `theory`, the question must be precise and answerable in 2-4 sentences.
 - Feedback is always concise: 3 lines of explanation maximum.
 - Do not drill trivial concepts (e.g. basic syntax the dev clearly masters).
